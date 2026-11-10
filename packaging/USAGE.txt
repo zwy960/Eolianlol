@@ -1,0 +1,86 @@
+Eolian 使用说明
+================
+
+1. 解压后双击 Eolian\Eolian.exe（**不要**单独把 exe 拖出来，
+   同目录的 _internal\ 是运行必需的，删了会启动失败）。
+2. Windows 弹出 UAC 时选择“是”。
+3. 启动英雄联盟客户端并进入英雄选择阶段。
+4. 在皮肤列表中选择皮肤，点击“开始换肤”。
+5. 保持 Eolian 运行，进入对局后自动注入。
+
+换肤生效前提：客户端当前选的是**基础皮肤**（面板会提示“当前为基础皮肤，换肤可生效”）。
+若你选着别的皮肤，本地覆盖不会被游戏加载，工具会直接拦下这次操作。
+
+构建完又想换别的皮肤？
+  · 直接选另一个皮肤再点【开始换肤】（会自动停掉上一次的补丁器重新构建）
+  · 或者先点【取消本次构建】，再选皮肤重新构建
+  · 本局已经注入后再点，会提示“等这一局结束”——换肤只在进游戏前有效
+
+界面右上角“终端”按钮可以查看构建、补丁器和 DLL 的实时日志。
+Eolian 使用无控制台窗口模式运行，不会再单独弹出黑色终端窗口。
+
+程序会自动探测常见的 WeGame / Riot 客户端安装目录，不需要手动配置路径。
+如果换电脑后无法自动识别，首次运行会要求选择一次客户端目录，之后自动保存。
+
+
+新皮肤 / 新英雄列表里没有？
+---------------------------
+皮肤目录是"包内快照 + 本地缓存"两层：
+
+  · 点界面右上角 **「刷新目录」**，会从正在运行的客户端现拉
+    skins.json / champion-summary.json，存到
+    %LOCALAPPDATA%\Eolian\catalog\ ，之后优先用这份（不用重新打包）。
+  · 启动时如果缓存不存在或超过 3 天，也会自动静默刷一次（客户端没开就跳过）。
+  · 刷新只能解决"目录里没这条"，资源本身还得靠客户端更新。
+
+要换新皮肤，完整顺序是：
+  1) 客户端更新（新皮肤资源进 WAD）
+  2) 点「刷新目录」（新 skinId 才会出现在列表里）
+  3) 必要时更新 binhashes（见上一节）
+
+
+binhashes 哈希表（构建换肤时要用）
+----------------------------------
+当前内置：_internal\data\hashes\binhashes-2026-11-02.lhdb（约 6.4 MB）
+
+什么时候需要更新：
+  · 游戏更新后，点“开始换肤”报“binhashes 表可能过期 / 未找到对象”；
+  · 或者日志里 [modgen] 提示找不到 characters/<英雄>/... 的对象。
+
+怎么拿：
+  1. 打开 Releases 页面（每次官方更新后会有新 tag）：
+     https://github.com/LeagueToolkit/Mimir/releases/latest
+  2. 下载里面的 binhashes-YYYY-MM-DD.lhdb（约 6.4 MB）。
+     同一个 release 里还有 binentries / binfields / bintypes / game / lcu / rst
+     等文件 —— 只有 binhashes 用得上；尤其别下 game-*.lhdb（45 MB，本项目不用）。
+  3. 放到对应目录：
+       打包版：Eolian\_internal\data\hashes\binhashes-YYYY-MM-DD.lhdb
+       源码版：Eolian\data\hashes\binhashes-YYYY-MM-DD.lhdb
+  4. 重启 Eolian。
+
+要点：
+  · 不用删旧的、也不用改名 —— 程序按文件名倒序自动取最新的一份。
+  · 这个文件跟机器无关，只跟游戏版本对应；同版本可以直接复制别人机器上的那份。
+  · 想校验：release 页面里有 manifest.json。2026-11-02 这份的参考值：
+        size   = 6,449,469 字节
+        sha256 = 7b1cad1d53f320d25385320df3a15ba4dae6c06c45a0235d33b853fddd678b9b
+        entries = 425297
+  · 如果官方版本比 Mimir 最新 release 还新，就暂时没有匹配的表可用，
+    只能等它跟进（通常跟着补丁发新 tag）。
+
+
+安全相关
+--------
+- 策略文件：%LOCALAPPDATA%\Eolian\safe.json（mode / lcu_patch_skin / known_builds）
+- 首次运行会自动登记当前游戏 build（日志出现 VER009），之后每次官方更新也会自动登记
+- 日志：%LOCALAPPDATA%\Eolian\session\diag.log（启动时自动脱敏上一份）
+- 默认不做客户端皮肤同步（lcu_patch_skin=false）：服务端看到的皮肤与手动游玩一致
+- 源码版体检命令：python -m eolian.safe audit
+
+
+分发注意
+--------
+- 必须整个 Eolian 文件夹一起发，只拿 exe 跑不起来（_internal 里是 vendor / resources / data）
+- 目标机器需要自己已安装英雄联盟客户端（WeGame 或 Riot），路径会自动探测
+- 首次运行要同意 UAC（注入游戏进程需要管理员权限）
+- 对方游戏比打包时新时，按上面“binhashes 哈希表”一节换表即可

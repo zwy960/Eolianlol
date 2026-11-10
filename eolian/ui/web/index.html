@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eolian · 英雄联盟换肤助手</title>
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- 顶部栏 -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">E</div>
+        <div class="brand-text">
+          <h1>EOLIAN</h1>
+          <span>英雄联盟换肤助手</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button id="btn-catalog" class="btn ghost" title="从客户端拉取最新皮肤目录">
+          <span class="btn-icon">⟳</span> 刷新目录
+        </button>
+        <button id="btn-logs" class="btn ghost" title="运行日志（F12）">
+          <span class="btn-icon">▤</span> 日志
+        </button>
+      </div>
+    </header>
+
+    <!-- 主体 -->
+    <main class="layout">
+      <!-- 左侧状态栏 -->
+      <aside class="sidebar">
+        <div class="card status-card">
+          <div class="card-label">运行状态</div>
+          <div class="conn-row">
+            <span id="conn-dot" class="dot idle"></span>
+            <span id="conn-text" class="conn-text">等待客户端</span>
+          </div>
+          <div id="phase-text" class="phase">阶段：未知</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">当前英雄</div>
+          <div id="champion-name" class="champion-name">未选择</div>
+          <div class="card-label gap-top">当前皮肤</div>
+          <div id="skin-current" class="skin-current">未进入选人阶段</div>
+          <hr class="divider" />
+          <div id="skin-count" class="muted small">0 款可用皮肤</div>
+        </div>
+
+        <div class="card version-card">
+          <span class="muted small">EOLIAN 1.0 · WebView UI</span>
+        </div>
+      </aside>
+
+      <!-- 皮肤库 -->
+      <section class="content">
+        <div class="content-toolbar">
+          <h2>皮肤库</h2>
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input id="search" type="text" placeholder="搜索皮肤名称或编号…" autocomplete="off" />
+          </div>
+        </div>
+
+        <div id="skin-grid" class="skin-grid">
+          <div class="empty-state">
+            <div class="empty-icon">✦</div>
+            <p>进入英雄选择后，这里会加载该英雄的皮肤</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 右侧详情 -->
+      <aside class="detail">
+        <div class="card detail-card">
+          <div class="card-label">已选皮肤</div>
+          <div id="selected-name" class="selected-name">未选择</div>
+          <div id="selected-meta" class="muted small">从皮肤库中选择一个皮肤</div>
+          <hr class="divider" />
+          <div class="state-lines">
+            <div id="build-state" class="state-line">构建：等待操作</div>
+            <div id="inject-state" class="state-line">注入：未启动</div>
+            <div id="overlay-mode" class="state-line muted">本地覆盖：等待进入选人</div>
+          </div>
+          <button id="btn-cancel" class="btn cancel">✕ 取消本次构建</button>
+          <button id="btn-swap" class="btn primary" disabled>开始换肤</button>
+        </div>
+      </aside>
+    </main>
+
+    <!-- 底部状态栏 -->
+    <footer class="statusbar">
+      <div class="statusbar-row">
+        <span id="status-text" class="status-text muted">等待客户端连接</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 日志抽屉 -->
+  <div id="log-drawer" class="log-drawer hidden">
+    <div class="log-header">
+      <span class="dot ok"></span>
+      <strong>实时运行日志</strong>
+      <div class="log-actions">
+        <button id="btn-log-clear" class="btn ghost small">清空</button>
+        <button id="btn-log-folder" class="btn ghost small">打开日志目录</button>
+        <button id="btn-log-close" class="btn ghost small">✕</button>
+      </div>
+    </div>
+    <pre id="log-view" class="log-view"></pre>
+  </div>
+  <div id="log-backdrop" class="log-backdrop hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

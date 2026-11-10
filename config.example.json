@@ -1,0 +1,7 @@
+{
+  "client_dir": "E:\\WeGameApps\\英雄联盟",
+  "game_dir": "E:\\WeGameApps\\英雄联盟\\Game",
+  "session_dir": "session",
+  "learn_overlay": "C:\\eolian-target\\release\\eolian-overlay.exe",
+  "overlay_ascii_dir": "C:\\eolian-overlay-current"
+}

@@ -1,0 +1,27 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+.venv/
+config.json
+# 运行产物
+session/
+overlays/
+# 大体积可再下载数据（mimir 哈希表）
+data/hashes/
+
+# Rust 构建产物
+eolian-overlay/target/
+eolian-overlay/.cargo/
+
+# 第三方补丁器二进制不入库（从上游项目获取，许可证见 vendor/ 内 LICENSE 文件）
+vendor/**/*.dll
+vendor/**/*.exe
+
+# 打包内置构建器是编译产物，由 eolian-overlay/ 用 cargo build --release 自行生成
+resources/*.exe
+
+# 本地参考仓库（仅学习用，不入库）
+reference/
