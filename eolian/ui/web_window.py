@@ -5,7 +5,8 @@
     web_window.py   —— 桥接层：pywebview JsApi 封装 catalog / swapper / gameflow / diag
 
 后端模块（catalog、overlay、patcher、safe、lcu…）零改动；
-前端逻辑（轮询、换肤流程编排）从 float_window.py 迁移至此，旧 Tk 界面保留作回退。
+前端逻辑（轮询、换肤流程编排）由 float_window.py 迁移而来；
+首次运行引导（路径探测、启动清理）见 bootstrap.py。
 
 用法：
     python -m tools.floater
@@ -203,7 +204,7 @@ class WebApi:
             self._catalog_version += 1
         log("CATALOG", "启动自动刷新完成", skins=info.get("skins_count"), age_days=age)
 
-    # ---- 换肤流程（编排逻辑与 float_window._swap_worker 一致）----
+    # ---- 换肤流程（编排逻辑与迁移前一致）----
 
     @staticmethod
     def _lcu_patch_enabled() -> bool:
@@ -522,16 +523,47 @@ class WebApi:
         remove_listener(self._listener)
 
 
+def _pick_dir_with_webview(title: str, initialdir: str) -> "str | None":
+    """首次运行设置时用 pywebview 原生文件夹对话框选目录。
+
+    通过一个隐藏窗口 + 独立 GUI 循环实现；对话框不可用时提示手动编辑
+    config.json（bootstrap._default_printer 行为由返回 None 触发）。
+    """
+    result: list[str | None] = []
+
+    def _ask() -> None:
+        try:
+            window = webview.windows[0]
+            files = window.create_file_dialog(
+                webview.FOLDER_DIALOG, title=title, folder_path=initialdir
+            )
+            result.append(files[0] if files else None)
+        except Exception as exc:  # noqa: BLE001 - 对话框失败不阻塞启动
+            print(f"[设置] 目录选择对话框不可用: {type(exc).__name__}")
+            result.append(None)
+        finally:
+            try:
+                webview.windows[0].destroy()
+            except Exception:  # noqa: BLE001
+                pass
+
+    window = webview.create_window(
+        "Eolian 设置", html="<p>正在打开目录选择…</p>", hidden=True, width=1, height=1
+    )
+    webview.start(_ask)
+    return result[0] if result else None
+
+
 def main() -> int:
     import webview
 
-    # 首次运行路径探测/启动清理复用旧 UI 的逻辑（仅对话框与日志脱敏，非后端）
-    from .float_window import _startup_housekeeping, prepare_settings
+    # 首次运行路径探测/启动清理（仅目录选择与日志脱敏，非后端）
+    from .bootstrap import prepare_settings, startup_housekeeping
 
-    settings = prepare_settings()
+    settings = prepare_settings(dir_picker=_pick_dir_with_webview)
     if settings is None:
         return 2
-    _startup_housekeeping(settings)
+    startup_housekeeping(settings)
     settings = _ensure_builder(settings)
 
     catalog = SkinCatalog()

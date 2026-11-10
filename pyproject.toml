@@ -14,7 +14,7 @@ requires-python = ">=3.11"
 extras = ["zstandard", "xxhash"]
 
 [project.scripts]
-eolian-floater = "eolian.ui.float_window:main"
+eolian-floater = "eolian.ui.web_window:main"
 eolian-safe = "eolian.safe.cli:main"
 
 [tool.setuptools.packages.find]

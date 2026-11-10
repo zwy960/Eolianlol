@@ -16,7 +16,7 @@ Eolian 是一个用于个人学习和研究的《英雄联盟》换肤工具原�
 - cslol 补丁器注入（默认），保留 LTK patcher 作为历史回退
 - **Web 界面**：pywebview + Edge WebView2 渲染的深色毛玻璃主题悬浮窗
   （实时皮肤卡片、日志增量拉取、换肤注入状态与"取消本次构建"）；
-  pywebview 不可用时自动回退旧 Tkinter 界面
+  首次运行自动弹出目录选择引导
 - 打包为 Windows onedir EXE（PyInstaller），内置 Web 前端与补丁器运行时
 
 ## 工作原理
@@ -44,7 +44,7 @@ pip install pywebview
 # 一键自检：权限、路径、客户端、构建器、补丁器
 python -m tools.doctor
 
-# 启动悬浮窗（优先 Web UI，回退 Tkinter）
+# 启动悬浮窗（Web UI，需要 pywebview）
 python -m tools.floater
 ```
 
@@ -61,7 +61,7 @@ dist\Eolian\Eolian.exe
 ```text
 Eolian/
 ├── eolian/              # Python 核心库（LCU、皮肤目录、覆盖构建、补丁器驱动）
-│   ├── ui/              # Web UI（web/ 前端 + web_window.py 桥接）与旧 Tk 悬浮窗
+│   ├── ui/              # Web UI（web/ 前端 + web_window.py 桥接 + bootstrap 引导）
 │   └── safe/            # 安全自检工具（进程/PE 校验、报告，`eolian-safe` 命令）
 ├── eolian-overlay/      # Rust 覆盖 WAD 构建器
 ├── tools/               # 命令行工具（doctor、lcu_probe、live_swap、wad_inspect 等）

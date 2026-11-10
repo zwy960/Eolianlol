@@ -43,7 +43,7 @@ python -m eolian.safe status --json    # 给 UI 读的状态
 1. **fail-closed**：所有检查的默认值都朝"拒绝"取。策略写坏（JSON 损坏）时回退 `balanced`，
    而不是"关闭检查"。
 2. **只在单点拦**：`create_patcher()` 是所有注入路径（`overlay.apply_overlay`、
-   `tools/skin_swap.py`、`ui/float_window.py`）的必经之路，拦这里不会漏。
+   `tools/skin_swap.py`、`ui/web_window.py`）的必经之路，拦这里不会漏。
 3. **观测与裁决分离**：`preflight()` 只产出 `Report`；`gate()` 才按策略抛 `SafeRefusal`。
    `mode=off` 时所有 block 自动降级为 warn，方便"先看看到底哪里不对"。
 4. **配置与代码解耦**：`safe.json` 里只放阈值和 build 白名单，不放开关逻辑；
@@ -72,7 +72,7 @@ python -m eolian.safe status --json    # 给 UI 读的状态
 |---|---|
 | `eolian/patcher.py::create_patcher()` | 构造前先 `_safe_gate()`，被拒抛 `PatcherError` |
 | `PatcherHost.start()` / `CslolPatcher.start()` | 注入点本身再查一次（幂等），直连脚本也拦得住 |
-| `eolian/ui/float_window.py::_swap_worker()` | 构建完成后、ASCII 复制**之前**跑门禁：通过 → 「安全检查通过（N 条告警）」；拦截 → 「防封门禁拦截：CODE 原因」，面板显示「注入：已拦截」，直接 return |
+| `eolian/ui/web_window.py（换肤编排）` | 构建完成后、ASCII 复制**之前**跑门禁：通过 → 「安全检查通过（N 条告警）」；拦截 → 「防封门禁拦截：CODE 原因」，面板显示「注入：已拦截」，直接 return |
 | 命令行 | `eolian-safe` / `python -m eolian.safe` |
 
 **幂等**：同一覆盖目录在一个进程里只体检一次（`is_guarded()`）；ASCII 副本与源目录字节一致，

@@ -9,17 +9,18 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 def _load_ui_main():
-    """优先加载 Web UI（pywebview）；不可用时回退旧 Tk 界面。"""
+    """加载 Web UI（pywebview + WebView2）；缺失时给出明确安装提示。"""
     try:
         import webview  # noqa: F401 - 探测 pywebview 是否可用
 
         from eolian.ui.web_window import main
 
         return main, "webview"
-    except ImportError:
-        from eolian.ui.float_window import main
-
-        return main, "tkinter-fallback"
+    except ImportError as exc:
+        print("Web UI 需要 pywebview（WebView2 渲染），且系统需安装 Edge WebView2 运行时。")
+        print("安装依赖: pip install pywebview")
+        print(f"导入失败原因: {exc}")
+        raise SystemExit(2)
 
 
 UI_MAIN, UI_BACKEND = _load_ui_main()
